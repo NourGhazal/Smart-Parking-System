@@ -1,0 +1,34 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+ENTITY pulse_disable IS
+     PORT (clk: IN STD_LOGIC;
+	   pulse : OUT STD_LOGIC);
+END pulse_disable;
+
+ARCHITECTURE behav OF pulse_disable IS
+COMPONENT Counter IS
+	GENERIC (n:POSITIVE := 22);
+	PORT (clk,enable,reset:IN STD_LOGIC;
+        counter_output: OUT STD_LOGIC_VECTOR (n-1 DOWNTO 0));
+END COMPONENT;
+
+SIGNAL pulse_width : STD_LOGIC_VECTOR(21 DOWNTO 0);
+SIGNAL enable : STD_LOGIC :='1';
+SIGNAL reset :STD_LOGIC :='0';
+
+BEGIN
+counterPulse : Counter GENERIC MAP(22) PORT MAP(clk,enable,reset,pulse_width);
+
+pulseGenerator: PROCESS(pulse_width)
+                BEGIN  
+		  IF(pulse_width = "0000010010010011111000") THEN -- 75000    1.5 ms / 20 ns
+		    reset <= '1';
+		    pulse <= '0';
+		  ELSE
+		    pulse <='1';
+		  END IF;
+	        END PROCESS pulseGenerator;
+END behav;
